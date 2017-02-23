@@ -1,0 +1,4 @@
+"parsers" : [
+"www.shopclues.com" : { "title" : "h1"},
+"www.snapdeal.com" : {"title" : "h1"}
+]
