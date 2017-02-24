@@ -1,4 +1,24 @@
-"parsers" : [
-"www.shopclues.com" : { "title" : "h1"},
-"www.snapdeal.com" : {"title" : "h1"}
-]
+{
+    "www.snapdeal.com":{
+        "title": {
+            "tag": "h1"
+        },
+        "price":{
+            "tag":"span",
+            "attr":{
+                "class":"payBlkBig"
+            }
+        }
+    }, 
+    "www.shopclues.com":{
+        "title":{
+            "tag":"h1"
+        },
+        "price":{
+            "tag":"span",
+            "attr":{
+                "class":"f_price"
+            }
+        }
+    }
+}

@@ -1,23 +1,44 @@
 from kafka import KafkaConsumer
-import lxml.html
-from lxml.cssselect import CSSSelector
+from bs4 import BeautifulSoup
+import json
+import re
 
-def run():
+class Product:
+	def __init__(self, title, price, host):
+		self.title = clean(title)
+		self.price = price
+		self.site = host
+
+def receive():
     consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
                              auto_offset_reset='earliest')
     consumer.subscribe(['www.shopclues.com','www.snapdeal.com'])
     return consumer
 
+def extract(domhtml, host):
+	parser = getParser(host)
+	title = domhtml.find(parser["title"]["tag"]).text
+	price = domhtml.find(parser["price"]["tag"], parser["price"]["attr"]).text
+	return Product(title, price, host)
+
+def getParser(host):
+	file = open("parsers.json","r")
+	jsonContent = file.read()
+	parsers = json.loads(jsonContent)
+	return parsers[host]
+
+def clean(value):
+	value = value.rstrip()
+	value = re.sub('\s+', '', value)
+	return value
+
 def main():
-	topics = run()
-	for each in topics:
-		tree = lxml.html.fromstring(each[6])
-		sel = CSSSelector('h1')
-		results = sel(tree)
-		print results[0].text
+	topics = receive()
+	for topic in topics:
+		payload = json.loads(topic.value)
+		dom = BeautifulSoup(payload["html"], "html.parser")
+		return extract(dom, topic.key)
 
 if __name__ == "__main__":
-	main()
-
-
-
+	product = main()
+	print product.site+"\n" + "Title : "+product.title +"\n"+ "Price : "+product.price+"\n"
